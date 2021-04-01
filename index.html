@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Eight puzzle</title>
+    <link rel="stylesheet" href="./index.css">
+  </head>
+  <body>
+    <h1 class="name">Puzzle game</h1>
+    <div>
+      Entry: <input id="positions" type="text" placeholder="Entry numbers 012345678" />
+      <button type="button" id="solveButton">Solve</button>
+    </div>
+    <div id="error">WRONG INPUT! IT HAS TO BE 9 DIGITS FROM 0 TO 8!</div>
+    <div class="input-and-output">
+      <h2>Initial Field</h2>
+      <div class="field">
+        <div class="row">
+          <div class="cell" data-pos="0,0"><span></span></div>
+          <div class="cell" data-pos="0,1"><span></span></div>
+          <div class="cell" data-pos="0,2"><span></span></div>
+        </div>
+        <div class="row">
+          <div class="cell" data-pos="1,0"><span></span></div>
+          <div class="cell" data-pos="1,1"><span></span></div>
+          <div class="cell" data-pos="1,2"><span></span></div>
+        </div>
+        <div class="row">
+          <div class="cell" data-pos="2,0"><span></span></div>
+          <div class="cell" data-pos="2,1"><span></span></div>
+          <div class="cell" data-pos="2,2"><span></span></div>
+        </div>
+      </div>
+      <h2>Goal Field</h2>
+      <div class="field">
+        <div class="row">
+         <div class="cell"><span>1</span></div>
+         <div class="cell"><span>2</span></div>
+         <div class="cell"><span>3</span></div>
+        </div>
+        <div class="row">
+         <div class="cell"><span>4</span></div>
+         <div class="cell"><span>5</span></div>
+         <div class="cell"><span>6</span></div>
+        </div>
+        <div class="row">
+         <div class="cell"><span>7</span></div>
+         <div class="cell"><span>8</span></div>
+         <div class="cell"><span>0</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="panel"></div>
+    <div id="stepsInExecute"></div>
+  </body>
+  <script src="./index.js" charset="utf-8"></script>
+  <script src="./priority-queue.js" charset="utf-8"></script>
+  <script src="./hash-set.js" charset="utf-8"></script>
+  <script
+   src="https://code.jquery.com/jquery-3.4.1.js"
+   integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+   crossorigin="anonymous"></script>
+
+   <script>
+     $('document').ready(function(){
+       $('#solveButton').on('click', function(){
+         let stringPositions = $("#positions").val();
+         let state = [];
+         let rowOfInts = [];
+         let emptyCoords = [];
+
+         // Check string
+         if (stringPositions.length == 9 && isNormalInteger(stringPositions)) {
+           // Hide showen error
+           $('#error').hide(1000);
+
+           // CreateNode
+           let positionsByRows = stringPositions.match(/.{1,3}/g);
+           positionsByRows.forEach((row, i) => {
+             rowOfInts = [];
+             for(let j = 0; j < row.length; j++) {
+               if (row[j] == 0) {
+                emptyCoords.push(i);
+                emptyCoords.push(j);
+               }
+               $('[data-pos="'+ i +','+ j +'"]').children(0)[0].innerHTML = row[j];
+               rowOfInts.push(parseInt(row[j]));
+             }
+             state.push(rowOfInts);
+           });
+
+           let init = new Node(0, state, emptyCoords[0], emptyCoords[1], 0)
+           let goal = new Node(0, [[1,2,3],[4,5,6],[7,8,0]], 2, 2, 0)
+
+           // Create AStar
+           let astar = new AStar(init, goal, 0);
+           // To measure time taken by the algorithm
+           let startTime = new Date();
+           // Execute AStar
+           let result = astar.execute();
+           // To measure time taken by the algorithm
+           let endTime = new Date();
+           alert('Completed in: ' + (endTime - startTime) + ' milliseconds');
+
+           // Show solution
+           let panel = document.getElementById('panel');
+         } else {
+           $('#error').show(1000);
+         }
+       });
+     });
+
+     function isNormalInteger(str) {
+         return /^\+?([0-8]\d*)$/.test(str);
+     }
+   </script>
+</html>
